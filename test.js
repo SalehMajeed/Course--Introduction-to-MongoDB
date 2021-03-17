@@ -38,6 +38,10 @@ const student = new mongoose.Schema(
 
 const school = new mongoose.Schema({
 	name: String,
+	openSince: Number,
+	students: Number,
+	isGreat: Boolean,
+	staff: [{ type: String }],
 });
 
 // Create Model
@@ -52,15 +56,50 @@ connect()
 	.catch(e => console.error(e));
 
 async function for_school() {
-	const school = await School.create({ name: 'mlk elementry' });
-	const student = await Student_model.create({
-		firstName: 'Trisha',
-		school: school._id,
-	});
+	const schoolConfig = {
+		name: 'mlk elementry',
+		openSince: 2009,
+		students: 1000,
+		isGreat: true,
+		staff: ['a', 'b', 'c'],
+	};
 
-	const match = await Student_model.findById(student.id).populate('school').exec();
+	const school2 = {
+		name: 'Larry Middle school',
+		openSince: 1980,
+		students: 600,
+		isGreat: false,
+		staff: ['v', 'b', 'g'],
+	};
+
+	const schools = await School.create([school2, school2]);
+
+	const match = await School.find({
+		// students: { $gt: 600, $lt: 800 },
+		// staff: 'b',
+		// isGreat: true,
+		$in: { staff: ['v', 'b', 'g'] },
+	}).exec();
 
 	console.log(match);
+
+	// const school = await School.findOneAndUpdate(
+	// 	{ name: 'mlk elementry' },
+	// 	{ name: 'mlk elementry' },
+	// 	{
+	// 		upsert: true,
+	// 		new: true,
+	// 	}
+	// ).exec();
+
+	// const student = await Student_model.create({
+	// 	firstName: 'Trisha',
+	// 	school: school._id,
+	// });
+
+	// const match = await Student_model.findById(student.id).populate('school').exec();
+	// const match = await Student_model.findOne({ firstName: 'Trisha' }).populate('school').exec();
+	// console.log(match);
 }
 
 async function for_student() {
